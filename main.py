@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 from io import StringIO
 from pdfminer.high_level import extract_text_to_fp
 
-# //TODO: extract text from pdf
 # //TODO: parse purchases by date(mm/dd), amount, desc
 # //TODO: parse deposits by date(mm/dd), amount, desc
 # //TODO: assign category to purchases
@@ -18,19 +17,19 @@ from pdfminer.high_level import extract_text_to_fp
 load_dotenv()
 
 PDF = os.getenv('PDF')
+PDF_two = os.getenv('PDF_two')
 
 # step 2
 # extract text from pdf
 def extract_pdf_text(pdf_path):
+    #variable to store PDF
+    text = StringIO()
     # extract text from PDF into variable as a string
-    # text = extract_text(pdf_path)
+    with open(pdf_path, 'rb') as fin:
+        extract_text_to_fp(fin, text)
     # call on subsequent funcs: get purchases, get  deposits, etc
     # pass pdf text to funcs
-    # return parse_purchases(text)
-    output_string = StringIO()
-    with open(pdf_path, 'rb') as fin:
-        extract_text_to_fp(fin, output_string)
-    return parse_purchases(output_string.getvalue().strip())
+    return parse_purchases(text.getvalue().strip())
 
 # step 3
 # get purchases from pdf file: {date, amount, desc.}
@@ -43,22 +42,19 @@ def parse_purchases(pdf_text):
     #text section where purchase data is found in PDF file
     span_value_one = keyword_one.span()
     span_value_two = keyword_two.span()
-    text_section_one = text[span_value_one[0]:span_value_two[1]]
+    text_section = text[span_value_one[0]:span_value_two[1]]
 
     # pattern to find date within doc
-    date_pattern = r'\d{2}/\d{2}'
-    dates = re.findall(date_pattern,text_section_one)
+    transaction_pattern = "(\d{2}/\d{2})((?:\d{1},)?(?:\d{1})?[0-9]+\.\d{2})"
+    transactions = re.findall(transaction_pattern,text_section)
 
-    #pattern to find amounts
-    #searches for 0.00 00.00 000.00 0,000.00 by making groups in parens optional : (0,)(0)00.00
-    amount_pattern ="(?:\d{1},)?(?:\d{1})?[0-9]+\.\d{2}"
-    amounts = re.findall(amount_pattern, text_section_one)
+    # description_pattern = "(?:(?:\d{1},)?(?:\d{1})?[0-9]+\.\d{2})?[a-zA-Z](?:\d{2}/\d{2})?"
+    # descriptions = re.findall(description_pattern,text_section)
 
+    purchase_pattern = "(\d{2}/\d{2})((?:\d{1},)?(?:\d{1})?[0-9]+\.\d{2})((?:[0-9]+)?[a-zA-Z]+)"
+    purchases = re.findall(purchase_pattern,text_section)
 
-
-    #pattern to find transaction description
-
-    return print(text_section_one)
+    return print(purchases)
 
 # step 1
 #Main function to run program once PDF file is dropped into application
