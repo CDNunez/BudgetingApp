@@ -71,7 +71,33 @@ def parse_deposits(pdf_text):
 #categorize purchases and deposits
 # def sort_purchases(purchases):
 def sort_deposits(deposits):
-    return print(deposits)
+    income = {"Tempus": 0, "WGE": 0, "Transfers": 0, "Other": 0}
+    search_terms = ['tempus', 'city', 'zelle']
+    for deposit in deposits:
+        desc = deposit[2]
+        for term in search_terms:
+            found = re.findall(term,desc.casefold())
+            if found:
+                s = ""
+                amount_string = deposit[1]
+                for i in amount_string:
+                    if i != ",":
+                        s+=i
+                        num = float(s)
+                if found == ['tempus']:
+                    income["Tempus"]+=num
+                elif found == ['city']:
+                    income["WGE"]+=num
+                elif found == ['zelle']:
+                    income['Transfers']+=num
+                else:
+                    income['Other']+=num
+                # print(f"search term loop: {found, deposit[1], search_terms.index(term),num, income}")
+        # print("deposit loop: ",deposit[2])
+    return parse_income(income)
+
+def parse_income(income):
+    return print(income)
 
 # step 1
 #Main function to run program once PDF file is dropped into application
