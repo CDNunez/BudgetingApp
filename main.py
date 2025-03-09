@@ -125,30 +125,41 @@ def sort_purchases(purchases):
 
 
 def sort_deposits(deposits):
-    income = {"Tempus": 0, "WGE": 0, "Transfers": 0, "Other": 0}
-    search_terms = ['tempus', 'city', 'zelle']
+    income = {"Tempus": 0, "WGE": 0, "Transfers": 0, "Other": 0, "Savings Transfer": 0}
+    search_terms = ['tempus', 'city', 'zelle', 'savings']
+    search_dict = {'tempus':0, 'city':0, 'zelle':0, "other": 0, 'savings': 0}
     for deposit in deposits:
         desc = deposit[2]
+        amount = deposit[1]
+        date = deposit[0]
+        print(date,desc,amount)
+        counter = 0
         for term in search_terms:
-            found = re.findall(term,desc.casefold())
-            if found:
-                s = ""
-                amount_string = deposit[1]
-                for i in amount_string:
-                    if i != ",":
-                        s+=i
-                        num = float(s)
-                if found == ['tempus']:
-                    income["Tempus"]+=num
-                elif found == ['city']:
-                    income["WGE"]+=num
-                elif found == ['zelle']:
-                    income['Transfers']+=num
-                else:
-                    income['Other']+=num
-                # print(f"search term loop: {found, deposit[1], search_terms.index(term),num, income}")
-        # print("deposit loop: ",deposit[2])
-    return parse_income(income)
+            find = re.findall(term,desc.casefold())
+            match find:
+                case [term]:
+                    s=""
+                    for i in amount:
+                        if i !=",":
+                            s+=i
+                            num = float(s)
+                    search_dict[term]+=num
+                    break
+                case _:
+                    counter+=1
+                    if counter == 4:
+                        s=""
+                        for i in amount:
+                            if i !=",":
+                                s+=i
+                                num=float(s)
+                        search_dict["other"]+=num
+    income["Tempus"]+=search_dict["tempus"]
+    income["WGE"]+=search_dict["city"]
+    income["Transfers"]+=search_dict["zelle"]
+    income["Other"]+=search_dict["other"]
+    income["Savings Transfer"]+=search_dict["savings"]
+    return print(f"income: {income}")
 
 def parse_income(income):
     return print(income)
