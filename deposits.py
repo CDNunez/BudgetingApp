@@ -25,7 +25,7 @@ def sort_deposits(deposits):
         desc = deposit[2]
         amount = deposit[1]
         date = deposit[0]
-        print(date,desc,amount)
+        # print(date,desc,amount)
         counter = 0
         for term in search_terms:
             find = re.findall(term,desc.casefold())
